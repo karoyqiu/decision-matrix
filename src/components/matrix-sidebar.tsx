@@ -29,7 +29,7 @@ const items = [
 ] as const;
 
 export function MatrixSidebar() {
-  const matrix = useMatrix();
+  const { matrix } = useMatrix();
 
   return (
     <Sidebar>

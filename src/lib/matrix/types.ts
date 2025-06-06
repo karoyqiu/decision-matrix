@@ -2,7 +2,7 @@ import { z } from 'zod/v4-mini';
 
 const numericFieldSchema = z.object({
   /** 类型：整数、小数、金额 */
-  type: z.enum(['int', 'float', 'money']),
+  type: z.enum(['int', 'float']),
   /** 可选单位列表，第一个为基准单位，如 `[g, kg]` */
   units: z.optional(z.array(z.string())),
   /**
@@ -13,6 +13,17 @@ const numericFieldSchema = z.object({
    * 其中 `from` 和 `to` 是 `units` 中的一员。
    */
   convert: z.optional(z.string()),
+  /** 数值计算公式 */
+  formula: z.optional(z.string()),
+  /** 显示精度，小数点后位数 */
+  precision: z.optional(z.int().check(z.gte(0))),
+});
+
+const moneyFieldSchema = z.object({
+  /** 类型：金额 */
+  type: z.literal('money'),
+  /** 货币，3 字母大写 */
+  currency: z.string().check(z.toUpperCase()).check(z.length(3)),
   /** 数值计算公式 */
   formula: z.optional(z.string()),
 });
@@ -35,7 +46,12 @@ export const fieldSchema = z.intersection(
     /** 名称 */
     name: z.string(),
   }),
-  z.discriminatedUnion('type', [numericFieldSchema, listFieldSchema, otherFieldSchema]),
+  z.discriminatedUnion('type', [
+    numericFieldSchema,
+    moneyFieldSchema,
+    listFieldSchema,
+    otherFieldSchema,
+  ]),
 );
 
 /** 字段 */

@@ -55,7 +55,8 @@ function RouteComponent() {
             const result = await load(path);
 
             if (result.success) {
-              dispatch({ type: 'open', data: result.data });
+              dispatch({ type: 'open', state: { matrix: result.data, filename: path } });
+              navigate({ to: '/matrix/data' });
             } else {
               console.error('Failed to open', result.error);
             }
