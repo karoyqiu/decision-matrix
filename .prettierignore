@@ -1,0 +1,3 @@
+Dockerfile
+*.rs
+**/routeTree.gen.ts
