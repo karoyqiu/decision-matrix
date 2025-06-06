@@ -12,17 +12,23 @@
   "app": {
     "windows": [
       {
-        "title": "decision-matrix",
-        "width": 800,
-        "height": 600
+        "title": "Decision Matrix",
+        "width": 1200,
+        "height": 700
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": ["'self'"],
+        "connect-src": ["ipc:", "http://ipc.localhost"],
+        "img-src": ["'self'", "https:", "data:"],
+        "style-src": ["'self'", "'nonce-zAL5psgZTuY_OsFwUDHw0A'"],
+        "upgrade-insecure-requests": []
+      }
     }
   },
   "bundle": {
-    "active": true,
+    "active": false,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
