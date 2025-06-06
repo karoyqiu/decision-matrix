@@ -1,32 +1,45 @@
 import { Link } from '@tanstack/react-router';
-import { LibraryIcon } from 'lucide-react';
+import { ListIcon, PencilIcon, TableIcon } from 'lucide-react';
 
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useMatrix } from '@/lib/matrix/context';
 
 // Menu items.
 const items = [
   {
-    title: 'Bookshelf',
-    url: '/',
-    icon: LibraryIcon,
+    title: 'Data',
+    url: '/matrix/data',
+    icon: TableIcon,
+  },
+  {
+    title: 'Fields',
+    url: '/matrix/fields',
+    icon: ListIcon,
   },
 ] as const;
 
-export function AppSidebar() {
+export function MatrixSidebar() {
+  const matrix = useMatrix();
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Reader</SidebarGroupLabel>
+          <SidebarGroupLabel>{matrix.name}</SidebarGroupLabel>
+          <SidebarGroupAction title="Rename decision matrix">
+            <PencilIcon />
+            <span className="sr-only">Rename decision matrix</span>
+          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
