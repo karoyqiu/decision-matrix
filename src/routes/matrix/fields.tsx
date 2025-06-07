@@ -26,7 +26,9 @@ function RouteComponent() {
     <div className="flex flex-col gap-4 p-2">
       {matrix.fields.map((field, index) => (
         <Fragment key={field.id}>
-          <FieldCollapsible {...{ index, field, dispatch: dispatchAndSave }} />
+          <FieldCollapsible
+            {...{ index, total: matrix.fields.length, field, dispatch: dispatchAndSave }}
+          />
           <Separator />
         </Fragment>
       ))}

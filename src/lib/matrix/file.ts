@@ -1,5 +1,5 @@
-import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
-import { EJSON } from 'bson';
+import { readFile, writeFile } from '@tauri-apps/plugin-fs';
+import { deserialize, serialize } from 'bson';
 
 import { type DecisionMatrix, decisionMatrixSchema } from './types';
 
@@ -10,7 +10,8 @@ import { type DecisionMatrix, decisionMatrixSchema } from './types';
  */
 export const save = (matrix: DecisionMatrix, filename: string) => {
   const verified = decisionMatrixSchema.parse(matrix);
-  return writeTextFile(filename, EJSON.stringify(verified));
+  const bytes = serialize(verified, { ignoreUndefined: true });
+  return writeFile(filename, bytes);
 };
 
 /**
@@ -18,7 +19,7 @@ export const save = (matrix: DecisionMatrix, filename: string) => {
  * @param filename 要加载的文件名
  */
 export const load = async (filename: string) => {
-  const text = await readTextFile(filename);
-  const obj = EJSON.parse(text);
+  const bytes = await readFile(filename);
+  const obj = deserialize(bytes);
   return decisionMatrixSchema.parse(obj);
 };

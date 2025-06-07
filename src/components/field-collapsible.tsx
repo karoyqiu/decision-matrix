@@ -1,5 +1,5 @@
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { ChevronDownIcon, ChevronRightIcon, DeleteIcon } from 'lucide-react';
+import { ArrowDownIcon, ArrowUpIcon, ChevronRightIcon, DeleteIcon, TrashIcon } from 'lucide-react';
 import { type Dispatch, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -24,18 +24,20 @@ import {
 } from '@/components/ui/select';
 import type { ActionType } from '@/lib/matrix/context';
 import { type Field, fieldSchema } from '@/lib/matrix/types';
+import { cn } from '@/lib/utils';
 
 import { Badge } from './ui/badge';
 
 type FieldCollapsibleProps = {
   index: number;
+  total: number;
   field: Field;
   dispatch: Dispatch<ActionType>;
 };
 
 export function FieldCollapsible(props: FieldCollapsibleProps) {
   'use no memo';
-  const { index, field, dispatch } = props;
+  const { index, total, field, dispatch } = props;
   const [open, setOpen] = useState(false);
   const form = useForm<Field>({
     resolver: standardSchemaResolver(fieldSchema),
@@ -63,10 +65,35 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
       <div className="flex items-center gap-2">
         <CollapsibleTrigger asChild>
           <Button variant="ghost" size="icon">
-            {open ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            <ChevronRightIcon className={cn(open && 'rotate-90', 'transition-transform')} />
           </Button>
         </CollapsibleTrigger>
-        {field.name}
+        <span className="grow">{field.name}</span>
+        {index > 0 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => dispatch({ type: 'moveField', from: index, to: index - 1 })}
+          >
+            <ArrowUpIcon />
+          </Button>
+        )}
+        {index < total - 1 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => dispatch({ type: 'moveField', from: index, to: index + 1 })}
+          >
+            <ArrowDownIcon />
+          </Button>
+        )}
+        <Button
+          variant="destructive"
+          size="icon"
+          onClick={() => dispatch({ type: 'deleteField', index })}
+        >
+          <TrashIcon />
+        </Button>
       </div>
       <CollapsibleContent>
         <Form {...form}>

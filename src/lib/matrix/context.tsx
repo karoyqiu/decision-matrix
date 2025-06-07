@@ -26,14 +26,38 @@ type NewFieldAction = {
   fieldName?: string;
 };
 
+/** 更新字段 */
 type UpdateFieldAction = {
   type: 'updateField';
+  /** 字段索引 */
   index: number;
+  /** 更新后的值 */
   field: Field;
 };
 
+/** 移动字段 */
+type MoveFieldAction = {
+  type: 'moveField';
+  /** 从索引 */
+  from: number;
+  /** 到索引 */
+  to: number;
+};
+
+/** 删除字段 */
+type DeleteFieldAction = {
+  type: 'deleteField';
+  /** 字段索引 */
+  index: number;
+};
+
 /** 动作 */
-export type ActionType = ResetAction | NewFieldAction | UpdateFieldAction;
+export type ActionType =
+  | ResetAction
+  | NewFieldAction
+  | UpdateFieldAction
+  | MoveFieldAction
+  | DeleteFieldAction;
 
 /** 决策矩阵 reducer */
 const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
@@ -51,6 +75,17 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
 
     case 'updateField':
       draft.fields.splice(action.index, 1, action.field);
+      break;
+
+    case 'moveField':
+      {
+        const field = draft.fields.splice(action.from, 1);
+        draft.fields.splice(action.to, 0, ...field);
+      }
+      break;
+
+    case 'deleteField':
+      draft.fields.splice(action.index, 1);
       break;
 
     default:
