@@ -13,8 +13,6 @@ const numericFieldSchema = z.object({
    * 其中 `from` 和 `to` 是 `units` 中的一员。
    */
   convert: z.optional(z.string()),
-  /** 数值计算公式 */
-  formula: z.optional(z.string()),
   /** 显示精度，小数点后位数 */
   precision: z.optional(z.coerce.number().check(z.int(), z.gte(0))),
 });
@@ -24,8 +22,6 @@ const moneyFieldSchema = z.object({
   type: z.literal('money'),
   /** 货币，3 字母大写 */
   currency: z._default(z.string().check(z.toUpperCase(), z.length(3)), 'CNY'),
-  /** 数值计算公式 */
-  formula: z.optional(z.string()),
 });
 
 const listFieldSchema = z.object({

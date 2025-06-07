@@ -43,7 +43,16 @@ export function InputBox(props: InputBoxProps) {
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <Input ref={input} />
+        <Input
+          ref={input}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onInput(e.currentTarget.value);
+              setOpen(false);
+            }
+          }}
+        />
         <DialogFooter>
           <Button
             onClick={() => {

@@ -36,6 +36,22 @@ import { cn } from '@/lib/utils';
 
 import { InputBox } from './input-box';
 
+type FieldNameProps = {
+  field: Field;
+};
+
+function FieldName(props: FieldNameProps) {
+  const { field } = props;
+  const units = 'units' in field ? field.units?.join(', ') : null;
+
+  return (
+    <span className="grow">
+      {field.name}
+      {units && <span className="text-muted-foreground ms-2 text-xs">{`[${units}]`}</span>}
+    </span>
+  );
+}
+
 type FieldCollapsibleProps = {
   index: number;
   total: number;
@@ -76,7 +92,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
             <ChevronRightIcon className={cn(open && 'rotate-90', 'transition-transform')} />
           </Button>
         </CollapsibleTrigger>
-        <span className="grow">{field.name}</span>
+        <FieldName field={field} />
         {index > 0 && (
           <Button
             variant="ghost"
@@ -205,7 +221,9 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
-                      <FormDescription>Unit converstion formula.</FormDescription>
+                      <FormDescription>
+                        <code>{`(value: number, from: Unit, to: Unit) => number`}</code>
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -235,24 +253,9 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                   <FormItem>
                     <FormLabel>Currency</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} defaultValue="CNY" />
                     </FormControl>
                     <FormDescription>Three upper case letters.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            {(type === 'int' || type === 'float' || type === 'money') && (
-              <FormField
-                control={form.control}
-                name="formula"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Formula</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
