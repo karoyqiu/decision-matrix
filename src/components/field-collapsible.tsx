@@ -1,8 +1,16 @@
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { ArrowDownIcon, ArrowUpIcon, ChevronRightIcon, DeleteIcon, TrashIcon } from 'lucide-react';
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ChevronRightIcon,
+  CopyIcon,
+  DeleteIcon,
+  TrashIcon,
+} from 'lucide-react';
 import { type Dispatch, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -26,7 +34,7 @@ import type { ActionType } from '@/lib/matrix/context';
 import { type Field, fieldSchema } from '@/lib/matrix/types';
 import { cn } from '@/lib/utils';
 
-import { Badge } from './ui/badge';
+import { InputBox } from './input-box';
 
 type FieldCollapsibleProps = {
   index: number;
@@ -87,6 +95,19 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
             <ArrowDownIcon />
           </Button>
         )}
+        <InputBox
+          title="Duplicate Field"
+          description="Input the name of the new field:"
+          onInput={(name) => {
+            if (name) {
+              dispatch({ type: 'newField', field: { ...field, name } });
+            }
+          }}
+        >
+          <Button variant="ghost" size="icon">
+            <CopyIcon />
+          </Button>
+        </InputBox>
         <Button
           variant="destructive"
           size="icon"

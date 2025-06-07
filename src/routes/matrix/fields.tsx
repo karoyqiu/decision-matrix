@@ -4,6 +4,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import { FieldCollapsible } from '@/components/field-collapsible';
+import { InputBox } from '@/components/input-box';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { type ActionType, useMatrix, useMatrixDispatch } from '@/lib/matrix/context';
@@ -32,10 +33,20 @@ function RouteComponent() {
           <Separator />
         </Fragment>
       ))}
-      <Button onClick={() => dispatchAndSave({ type: 'newField' })}>
-        <PlusIcon />
-        Add a new field
-      </Button>
+      <InputBox
+        title="Add Field"
+        description="Input the name of the new field:"
+        onInput={(name) => {
+          if (name) {
+            dispatchAndSave({ type: 'newField', field: { id: '', name, type: 'text' } });
+          }
+        }}
+      >
+        <Button>
+          <PlusIcon />
+          Add a new field
+        </Button>
+      </InputBox>
     </div>
   );
 }

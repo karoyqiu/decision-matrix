@@ -22,8 +22,8 @@ type ResetAction = {
 /** 创建新字段 */
 type NewFieldAction = {
   type: 'newField';
-  /** 字段名 */
-  fieldName?: string;
+  /** 字段 */
+  field: Field;
 };
 
 /** 更新字段 */
@@ -67,9 +67,8 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
 
     case 'newField':
       draft.fields.push({
+        ...action.field,
         id: window.crypto.randomUUID(),
-        name: action.fieldName ?? `Field ${draft.fields.length}`,
-        type: 'text',
       });
       break;
 
