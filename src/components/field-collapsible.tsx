@@ -46,6 +46,8 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
   const type = form.watch('type');
   // @ts-expect-error
   const units = useFieldArray<Field>({ control: form.control, name: 'units' });
+  // @ts-expect-error
+  const listValues = useFieldArray<Field>({ control: form.control, name: 'values' });
 
   const submit = form.handleSubmit(
     (values) => {
@@ -68,7 +70,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
       </div>
       <CollapsibleContent>
         <Form {...form}>
-          <form onSubmit={submit} onBlur={submit} className="flex flex-col gap-2 pt-2 pl-11">
+          <form onSubmit={submit} onBlur={submit} className="flex flex-col gap-4 pt-2 pl-11">
             <FormField
               control={form.control}
               name="name"
@@ -107,6 +109,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                       <SelectItem value="float">Float</SelectItem>
                       <SelectItem value="money">Money</SelectItem>
                       <SelectItem value="date">Date</SelectItem>
+                      <SelectItem value="list">List</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -130,21 +133,21 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                       }}
                     />
                   </FormControl>
+                  <FormDescription className="flex flex-wrap gap-1">
+                    {units.fields.map((unit, index) => (
+                      <Badge key={unit.id} variant="secondary">
+                        {form.getValues('units')?.at(index)}
+                        <Button
+                          variant="secondary"
+                          className="size-2"
+                          onClick={() => units.remove(index)}
+                        >
+                          <DeleteIcon />
+                        </Button>
+                      </Badge>
+                    ))}
+                  </FormDescription>
                 </FormItem>
-                <div className="flex flex-wrap gap-1">
-                  {units.fields.map((unit, index) => (
-                    <Badge key={unit.id} variant="secondary">
-                      {form.getValues('units')?.at(index)}
-                      <Button
-                        variant="secondary"
-                        className="size-2"
-                        onClick={() => units.remove(index)}
-                      >
-                        <DeleteIcon />
-                      </Button>
-                    </Badge>
-                  ))}
-                </div>
                 <FormField
                   control={form.control}
                   name="convert"
@@ -206,6 +209,40 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                   </FormItem>
                 )}
               />
+            )}
+            {type === 'list' && (
+              <>
+                <FormItem>
+                  <FormLabel>Values</FormLabel>
+                  <FormControl>
+                    <Input
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const input = e.currentTarget;
+                          // @ts-expect-error
+                          listValues.append(input.value);
+                          input.value = '';
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription className="flex flex-wrap gap-1">
+                    {listValues.fields.map((value, index) => (
+                      <Badge key={value.id} variant="secondary">
+                        {form.getValues('values')?.at(index)}
+                        <Button
+                          variant="secondary"
+                          className="size-2"
+                          onClick={() => listValues.remove(index)}
+                        >
+                          <DeleteIcon />
+                        </Button>
+                      </Badge>
+                    ))}
+                  </FormDescription>
+                </FormItem>
+              </>
             )}
           </form>
         </Form>
