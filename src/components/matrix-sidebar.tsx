@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { ListIcon, PencilIcon, TableIcon } from 'lucide-react';
+import { ListIcon, PencilIcon, SaveIcon, TableIcon } from 'lucide-react';
 
 import {
   Sidebar,
@@ -8,6 +8,7 @@ import {
   SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -29,10 +30,20 @@ const items = [
 ] as const;
 
 export function MatrixSidebar() {
-  const { matrix } = useMatrix();
+  const { matrix, save } = useMatrix();
 
   return (
     <Sidebar>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={save}>
+              <SaveIcon />
+              Save
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>{matrix.name}</SidebarGroupLabel>

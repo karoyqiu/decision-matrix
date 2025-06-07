@@ -8,8 +8,10 @@ import { type DecisionMatrix, decisionMatrixSchema } from './types';
  * @param matrix 要保存的决策矩阵
  * @param filename 要保存到的文件名
  */
-export const save = (matrix: DecisionMatrix, filename: string) =>
-  writeTextFile(filename, EJSON.stringify(matrix));
+export const save = (matrix: DecisionMatrix, filename: string) => {
+  const verified = decisionMatrixSchema.parse(matrix);
+  return writeTextFile(filename, EJSON.stringify(verified));
+};
 
 /**
  * 从文件中加载决策矩阵。
@@ -18,5 +20,5 @@ export const save = (matrix: DecisionMatrix, filename: string) =>
 export const load = async (filename: string) => {
   const text = await readTextFile(filename);
   const obj = EJSON.parse(text);
-  return decisionMatrixSchema.safeParse(obj);
+  return decisionMatrixSchema.parse(obj);
 };

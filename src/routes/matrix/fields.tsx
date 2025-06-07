@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
+import { Fragment } from 'react/jsx-runtime';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import { FieldCollapsible } from '@/components/field-collapsible';
@@ -12,15 +13,9 @@ export const Route = createFileRoute('/matrix/fields')({
 });
 
 function RouteComponent() {
-  const { matrix } = useMatrix();
+  const { matrix, save } = useMatrix();
   const dispatch = useMatrixDispatch();
-  const saveLater = useDebounceCallback(
-    () => {
-      dispatch({ type: 'save' });
-    },
-    1000,
-    { maxWait: 1000 * 60 },
-  );
+  const saveLater = useDebounceCallback(save, 1000, { maxWait: 1000 * 60 });
 
   const dispatchAndSave = (action: ActionType) => {
     dispatch(action);
@@ -30,10 +25,10 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-4 p-2">
       {matrix.fields.map((field, index) => (
-        <>
-          <FieldCollapsible key={field.name} {...{ index, field, dispatch: dispatchAndSave }} />
+        <Fragment key={field.id}>
+          <FieldCollapsible {...{ index, field, dispatch: dispatchAndSave }} />
           <Separator />
-        </>
+        </Fragment>
       ))}
       <Button onClick={() => dispatchAndSave({ type: 'newField' })}>
         <PlusIcon />

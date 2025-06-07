@@ -1,13 +1,14 @@
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronRightIcon, DeleteIcon } from 'lucide-react';
 import { type Dispatch, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,6 +25,8 @@ import {
 import type { ActionType } from '@/lib/matrix/context';
 import { type Field, fieldSchema } from '@/lib/matrix/types';
 
+import { Badge } from './ui/badge';
+
 type FieldCollapsibleProps = {
   index: number;
   field: Field;
@@ -31,6 +34,7 @@ type FieldCollapsibleProps = {
 };
 
 export function FieldCollapsible(props: FieldCollapsibleProps) {
+  'use no memo';
   const { index, field, dispatch } = props;
   const [open, setOpen] = useState(false);
   const form = useForm<Field>({
@@ -39,10 +43,18 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
     criteriaMode: 'all',
     defaultValues: field,
   });
+  const type = form.watch('type');
+  // @ts-expect-error
+  const units = useFieldArray<Field>({ control: form.control, name: 'units' });
 
-  const submit = form.handleSubmit((values) => {
-    dispatch({ type: 'updateField', index, field: values });
-  }, console.error);
+  const submit = form.handleSubmit(
+    (values) => {
+      dispatch({ type: 'updateField', index, field: values });
+    },
+    (errors) => {
+      console.error('Submit field form error', errors);
+    },
+  );
 
   return (
     <Collapsible key={field.name} open={open} onOpenChange={setOpen}>
@@ -56,7 +68,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
       </div>
       <CollapsibleContent>
         <Form {...form}>
-          <form onSubmit={submit} onBlur={submit} className="space-y-2 pt-2 pl-11">
+          <form onSubmit={submit} onBlur={submit} className="flex flex-col gap-2 pt-2 pl-11">
             <FormField
               control={form.control}
               name="name"
@@ -76,10 +88,17 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    disabled={field.disabled}
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a verified email to display" />
+                        <SelectValue
+                          onBlur={field.onBlur}
+                          placeholder="Select a verified email to display"
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -94,6 +113,100 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                 </FormItem>
               )}
             />
+            {(type === 'int' || type === 'float') && (
+              <>
+                <FormItem>
+                  <FormLabel>Units</FormLabel>
+                  <FormControl>
+                    <Input
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const input = e.currentTarget;
+                          // @ts-expect-error
+                          units.append(input.value);
+                          input.value = '';
+                        }
+                      }}
+                    />
+                  </FormControl>
+                </FormItem>
+                <div className="flex flex-wrap gap-1">
+                  {units.fields.map((unit, index) => (
+                    <Badge key={unit.id} variant="secondary">
+                      {form.getValues('units')?.at(index)}
+                      <Button
+                        variant="secondary"
+                        className="size-2"
+                        onClick={() => units.remove(index)}
+                      >
+                        <DeleteIcon />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+                <FormField
+                  control={form.control}
+                  name="convert"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Converstion</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormDescription>Unit converstion formula.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+            {type === 'float' && (
+              <FormField
+                control={form.control}
+                name="precision"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Precision</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" inputMode="numeric" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {type === 'money' && (
+              <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Currency</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormDescription>Three upper case letters.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {(type === 'int' || type === 'float' || type === 'money') && (
+              <FormField
+                control={form.control}
+                name="formula"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Formula</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </form>
         </Form>
       </CollapsibleContent>

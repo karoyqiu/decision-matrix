@@ -3,15 +3,14 @@ import { open, save } from '@tauri-apps/plugin-dialog';
 import { FilePlus2Icon, FolderOpenIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { emptyMatrix, useMatrixDispatch } from '@/lib/matrix/context';
-import { load, save as saveMatrix } from '@/lib/matrix/file';
+import { useMatrix } from '@/lib/matrix/context';
 
 export const Route = createFileRoute('/_app/')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const dispatch = useMatrixDispatch();
+  const { create, load } = useMatrix();
   const navigate = useNavigate();
 
   return (
@@ -30,8 +29,7 @@ function RouteComponent() {
           });
 
           if (path) {
-            await saveMatrix(emptyMatrix, path);
-            dispatch({ type: 'create' });
+            await create(path);
             navigate({ to: '/matrix/fields' });
           }
         }}
@@ -52,13 +50,11 @@ function RouteComponent() {
           });
 
           if (path) {
-            const result = await load(path);
-
-            if (result.success) {
-              dispatch({ type: 'open', state: { matrix: result.data, filename: path } });
-              navigate({ to: '/matrix/data' });
-            } else {
-              console.error('Failed to open', result.error);
+            try {
+              await load(path);
+              navigate({ to: '/matrix/fields' });
+            } catch (e) {
+              console.error('Failed to open', e);
             }
           }
         }}

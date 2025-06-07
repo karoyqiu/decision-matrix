@@ -16,14 +16,14 @@ const numericFieldSchema = z.object({
   /** 数值计算公式 */
   formula: z.optional(z.string()),
   /** 显示精度，小数点后位数 */
-  precision: z.optional(z.int().check(z.gte(0))),
+  precision: z.optional(z.coerce.number().check(z.int(), z.gte(0))),
 });
 
 const moneyFieldSchema = z.object({
   /** 类型：金额 */
   type: z.literal('money'),
   /** 货币，3 字母大写 */
-  currency: z.string().check(z.toUpperCase()).check(z.length(3)),
+  currency: z._default(z.string().check(z.toUpperCase(), z.length(3)), 'CNY'),
   /** 数值计算公式 */
   formula: z.optional(z.string()),
 });
@@ -43,6 +43,7 @@ const otherFieldSchema = z.object({
 /** 字段 */
 export const fieldSchema = z.intersection(
   z.object({
+    id: z.uuid(),
     /** 名称 */
     name: z.string(),
   }),
@@ -72,7 +73,22 @@ export const decisionMatrixSchema = z.object({
   /** 名称 */
   name: z.string(),
   /** 字段列表 */
-  fields: z.array(fieldSchema),
+  fields: z.array(fieldSchema).check((ctx) => {
+    const keys = new Set<string>();
+
+    for (const field of ctx.value) {
+      if (keys.has(field.name)) {
+        ctx.issues.push({
+          code: 'custom',
+          input: ctx.value,
+          message: `Duplicated field name: ${field.name}`,
+          continue: true,
+        });
+      }
+
+      keys.add(field.name);
+    }
+  }),
   /** 数据列表 */
   data: z.array(dataSchema),
 });
