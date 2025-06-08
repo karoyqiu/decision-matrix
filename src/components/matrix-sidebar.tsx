@@ -1,5 +1,13 @@
 import { Link } from '@tanstack/react-router';
-import { ListIcon, PencilIcon, SaveIcon, TableIcon } from 'lucide-react';
+import {
+  BracesIcon,
+  HouseIcon,
+  ListIcon,
+  PencilIcon,
+  PlusIcon,
+  SaveIcon,
+  TableIcon,
+} from 'lucide-react';
 
 import {
   Sidebar,
@@ -10,32 +18,31 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { useMatrix } from '@/lib/matrix/context';
 
-// Menu items.
-const items = [
-  {
-    title: 'Data',
-    url: '/matrix/data',
-    icon: TableIcon,
-  },
-  {
-    title: 'Fields',
-    url: '/matrix/fields',
-    icon: ListIcon,
-  },
-] as const;
-
 export function MatrixSidebar() {
   const { matrix, save } = useMatrix();
+  const primaryField = matrix.fields.find((field) => field.primary);
 
   return (
     <Sidebar>
       <SidebarHeader>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link className="[&.active]:bg-primary [&.active]:text-primary-foreground" to="/">
+                <HouseIcon />
+                Home
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={save}>
               <SaveIcon />
@@ -53,16 +60,53 @@ export function MatrixSidebar() {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link className="[&.active]:bg-primary" to={item.url}>
-                      <item.icon />
-                      {item.title}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    className="[&.active]:bg-primary [&.active]:text-primary-foreground"
+                    to="/matrix/data"
+                  >
+                    <TableIcon />
+                    Data
+                  </Link>
+                </SidebarMenuButton>
+                <SidebarMenuAction title="Add data">
+                  <PlusIcon />
+                  <span className="sr-only">Add data</span>
+                </SidebarMenuAction>
+                <SidebarMenuSub>
+                  {matrix.data.map((data) => {
+                    const dataId = data.id as string;
+                    return (
+                      <SidebarMenuSubItem key={dataId}>
+                        <SidebarMenuSubButton asChild>
+                          <Link
+                            className="[&.active]:bg-primary [&.active]:text-primary-foreground"
+                            to="/matrix/data/$dataId"
+                            params={{ dataId }}
+                          >
+                            <BracesIcon />
+                            <span className="">
+                              {data[primaryField?.id ?? 'id']?.toString() ?? dataId}
+                            </span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    );
+                  })}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    className="[&.active]:bg-primary [&.active]:text-primary-foreground"
+                    to="/matrix/fields"
+                  >
+                    <ListIcon />
+                    Fields
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

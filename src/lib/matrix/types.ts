@@ -42,6 +42,8 @@ export const fieldSchema = z.intersection(
     id: z.uuid(),
     /** 名称 */
     name: z.string(),
+    /** 是否为主字段 */
+    primary: z.optional(z.boolean()),
   }),
   z.discriminatedUnion('type', [
     numericFieldSchema,
@@ -54,7 +56,7 @@ export const fieldSchema = z.intersection(
 /** 字段 */
 export type Field = z.infer<typeof fieldSchema>;
 
-/** 数据 */
+/** 数据，键是 `id` 及各字段 ID */
 export const dataSchema = z.record(
   z.string(),
   z.union([z.string(), z.int(), z.number(), z.date()]),
@@ -71,6 +73,7 @@ export const decisionMatrixSchema = z.object({
   /** 字段列表 */
   fields: z.array(fieldSchema).check((ctx) => {
     const keys = new Set<string>();
+    let primary = false;
 
     for (const field of ctx.value) {
       if (keys.has(field.name)) {
@@ -83,6 +86,28 @@ export const decisionMatrixSchema = z.object({
       }
 
       keys.add(field.name);
+
+      if (field.primary) {
+        if (primary) {
+          ctx.issues.push({
+            code: 'custom',
+            input: ctx.value,
+            message: `Duplicated primary field: ${field.name}`,
+            continue: true,
+          });
+        } else {
+          primary = true;
+        }
+      }
+    }
+
+    if (!primary) {
+      ctx.issues.push({
+        code: 'custom',
+        input: ctx.value,
+        message: 'No primary field',
+        continue: true,
+      });
     }
   }),
   /** 数据列表 */

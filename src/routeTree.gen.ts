@@ -15,7 +15,8 @@ import { Route as AppImport } from './routes/_app'
 import { Route as MatrixRouteImport } from './routes/matrix/route'
 import { Route as AppIndexImport } from './routes/_app.index'
 import { Route as MatrixFieldsImport } from './routes/matrix/fields'
-import { Route as MatrixDataImport } from './routes/matrix/data'
+import { Route as MatrixDataIndexImport } from './routes/matrix/data.index'
+import { Route as MatrixDataDataIdImport } from './routes/matrix/data.$dataId'
 
 // Create/Update Routes
 
@@ -42,9 +43,15 @@ const MatrixFieldsRoute = MatrixFieldsImport.update({
   getParentRoute: () => MatrixRouteRoute,
 } as any)
 
-const MatrixDataRoute = MatrixDataImport.update({
-  id: '/data',
-  path: '/data',
+const MatrixDataIndexRoute = MatrixDataIndexImport.update({
+  id: '/data/',
+  path: '/data/',
+  getParentRoute: () => MatrixRouteRoute,
+} as any)
+
+const MatrixDataDataIdRoute = MatrixDataDataIdImport.update({
+  id: '/data/$dataId',
+  path: '/data/$dataId',
   getParentRoute: () => MatrixRouteRoute,
 } as any)
 
@@ -66,13 +73,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppImport
       parentRoute: typeof rootRoute
     }
-    '/matrix/data': {
-      id: '/matrix/data'
-      path: '/data'
-      fullPath: '/matrix/data'
-      preLoaderRoute: typeof MatrixDataImport
-      parentRoute: typeof MatrixRouteImport
-    }
     '/matrix/fields': {
       id: '/matrix/fields'
       path: '/fields'
@@ -87,19 +87,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexImport
       parentRoute: typeof AppImport
     }
+    '/matrix/data/$dataId': {
+      id: '/matrix/data/$dataId'
+      path: '/data/$dataId'
+      fullPath: '/matrix/data/$dataId'
+      preLoaderRoute: typeof MatrixDataDataIdImport
+      parentRoute: typeof MatrixRouteImport
+    }
+    '/matrix/data/': {
+      id: '/matrix/data/'
+      path: '/data'
+      fullPath: '/matrix/data'
+      preLoaderRoute: typeof MatrixDataIndexImport
+      parentRoute: typeof MatrixRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
 interface MatrixRouteRouteChildren {
-  MatrixDataRoute: typeof MatrixDataRoute
   MatrixFieldsRoute: typeof MatrixFieldsRoute
+  MatrixDataDataIdRoute: typeof MatrixDataDataIdRoute
+  MatrixDataIndexRoute: typeof MatrixDataIndexRoute
 }
 
 const MatrixRouteRouteChildren: MatrixRouteRouteChildren = {
-  MatrixDataRoute: MatrixDataRoute,
   MatrixFieldsRoute: MatrixFieldsRoute,
+  MatrixDataDataIdRoute: MatrixDataDataIdRoute,
+  MatrixDataIndexRoute: MatrixDataIndexRoute,
 }
 
 const MatrixRouteRouteWithChildren = MatrixRouteRoute._addFileChildren(
@@ -119,39 +135,54 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 export interface FileRoutesByFullPath {
   '/matrix': typeof MatrixRouteRouteWithChildren
   '': typeof AppRouteWithChildren
-  '/matrix/data': typeof MatrixDataRoute
   '/matrix/fields': typeof MatrixFieldsRoute
   '/': typeof AppIndexRoute
+  '/matrix/data/$dataId': typeof MatrixDataDataIdRoute
+  '/matrix/data': typeof MatrixDataIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/matrix': typeof MatrixRouteRouteWithChildren
-  '/matrix/data': typeof MatrixDataRoute
   '/matrix/fields': typeof MatrixFieldsRoute
   '/': typeof AppIndexRoute
+  '/matrix/data/$dataId': typeof MatrixDataDataIdRoute
+  '/matrix/data': typeof MatrixDataIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/matrix': typeof MatrixRouteRouteWithChildren
   '/_app': typeof AppRouteWithChildren
-  '/matrix/data': typeof MatrixDataRoute
   '/matrix/fields': typeof MatrixFieldsRoute
   '/_app/': typeof AppIndexRoute
+  '/matrix/data/$dataId': typeof MatrixDataDataIdRoute
+  '/matrix/data/': typeof MatrixDataIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/matrix' | '' | '/matrix/data' | '/matrix/fields' | '/'
+  fullPaths:
+    | '/matrix'
+    | ''
+    | '/matrix/fields'
+    | '/'
+    | '/matrix/data/$dataId'
+    | '/matrix/data'
   fileRoutesByTo: FileRoutesByTo
-  to: '/matrix' | '/matrix/data' | '/matrix/fields' | '/'
+  to:
+    | '/matrix'
+    | '/matrix/fields'
+    | '/'
+    | '/matrix/data/$dataId'
+    | '/matrix/data'
   id:
     | '__root__'
     | '/matrix'
     | '/_app'
-    | '/matrix/data'
     | '/matrix/fields'
     | '/_app/'
+    | '/matrix/data/$dataId'
+    | '/matrix/data/'
   fileRoutesById: FileRoutesById
 }
 
@@ -182,8 +213,9 @@ export const routeTree = rootRoute
     "/matrix": {
       "filePath": "matrix/route.tsx",
       "children": [
-        "/matrix/data",
-        "/matrix/fields"
+        "/matrix/fields",
+        "/matrix/data/$dataId",
+        "/matrix/data/"
       ]
     },
     "/_app": {
@@ -192,10 +224,6 @@ export const routeTree = rootRoute
         "/_app/"
       ]
     },
-    "/matrix/data": {
-      "filePath": "matrix/data.tsx",
-      "parent": "/matrix"
-    },
     "/matrix/fields": {
       "filePath": "matrix/fields.tsx",
       "parent": "/matrix"
@@ -203,6 +231,14 @@ export const routeTree = rootRoute
     "/_app/": {
       "filePath": "_app.index.tsx",
       "parent": "/_app"
+    },
+    "/matrix/data/$dataId": {
+      "filePath": "matrix/data.$dataId.tsx",
+      "parent": "/matrix"
+    },
+    "/matrix/data/": {
+      "filePath": "matrix/data.index.tsx",
+      "parent": "/matrix"
     }
   }
 }

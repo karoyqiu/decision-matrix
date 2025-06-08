@@ -19,9 +19,9 @@ type ResetAction = {
   matrix?: DecisionMatrix;
 };
 
-/** 创建新字段 */
-type NewFieldAction = {
-  type: 'newField';
+/** 添加字段 */
+type AddFieldAction = {
+  type: 'addField';
   /** 字段 */
   field: Field;
 };
@@ -51,13 +51,21 @@ type DeleteFieldAction = {
   index: number;
 };
 
+/** 添加数据 */
+type AddDataAction = {
+  type: 'addData';
+  /** 数据 ID */
+  dataId: string;
+};
+
 /** 动作 */
 export type ActionType =
   | ResetAction
-  | NewFieldAction
+  | AddFieldAction
   | UpdateFieldAction
   | MoveFieldAction
-  | DeleteFieldAction;
+  | DeleteFieldAction
+  | AddDataAction;
 
 /** 决策矩阵 reducer */
 const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
@@ -65,7 +73,7 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
     case 'reset':
       return action.matrix ?? emptyMatrix;
 
-    case 'newField':
+    case 'addField':
       draft.fields.push({
         ...action.field,
         id: window.crypto.randomUUID(),
@@ -73,7 +81,18 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
       break;
 
     case 'updateField':
-      draft.fields.splice(action.index, 1, action.field);
+      if (action.field.primary) {
+        draft.fields = draft.fields.map((field, index) =>
+          index === action.index
+            ? action.field
+            : {
+                ...field,
+                primary: false,
+              },
+        );
+      } else {
+        draft.fields.splice(action.index, 1, action.field);
+      }
       break;
 
     case 'moveField':
@@ -85,6 +104,10 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
 
     case 'deleteField':
       draft.fields.splice(action.index, 1);
+      break;
+
+    case 'addData':
+      draft.data.push({ id: action.dataId });
       break;
 
     default:
@@ -147,6 +170,12 @@ export default function DecisionMatrixProivder({ children }: { children?: ReactN
 
 /** 使用当前决策矩阵 */
 export const useMatrix = () => useContext(DecisionMatrixContext);
+
+export const useMatrixData = (dataId: string) => {
+  const { matrix } = useMatrix();
+  const data = matrix.data.find((d) => d.id === dataId);
+  return data;
+};
 
 /** 使用动作分发函数 */
 export const useMatrixDispatch = () => useContext(DecisionMatrixDispatchContext);

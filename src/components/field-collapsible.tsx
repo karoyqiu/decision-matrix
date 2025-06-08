@@ -35,6 +35,7 @@ import { type Field, fieldSchema } from '@/lib/matrix/types';
 import { cn } from '@/lib/utils';
 
 import { InputBox } from './input-box';
+import { Checkbox } from './ui/checkbox';
 
 type FieldNameProps = {
   field: Field;
@@ -45,10 +46,11 @@ function FieldName(props: FieldNameProps) {
   const units = 'units' in field ? field.units?.join(', ') : null;
 
   return (
-    <span className="grow">
-      {field.name}
-      {units && <span className="text-muted-foreground ms-2 text-xs">{`[${units}]`}</span>}
-    </span>
+    <div className="flex grow gap-2">
+      <span>{field.name}</span>
+      {units && <span className="text-muted-foreground text-xs">{`[${units}]`}</span>}
+      {field.primary && <Badge>Primary field</Badge>}
+    </div>
   );
 }
 
@@ -69,6 +71,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
     criteriaMode: 'all',
     defaultValues: field,
   });
+  const primary = form.watch('primary');
   const type = form.watch('type');
   // @ts-expect-error
   const units = useFieldArray<Field>({ control: form.control, name: 'units' });
@@ -116,7 +119,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
           description="Input the name of the new field:"
           onInput={(name) => {
             if (name) {
-              dispatch({ type: 'newField', field: { ...field, name } });
+              dispatch({ type: 'addField', field: { ...field, name } });
             }
           }}
         >
@@ -177,6 +180,25 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="primary"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center gap-2">
+                  <FormControl>
+                    <Checkbox
+                      checked={!!field.value}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          field.onChange(true);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel className="text-sm font-normal">Primary field</FormLabel>
                 </FormItem>
               )}
             />

@@ -40,7 +40,7 @@ function RouteComponent() {
           description="Input the name of the new field:"
           onInput={(name) => {
             if (name) {
-              dispatchAndSave({ type: 'newField', field: { id: '', name, type: 'text' } });
+              dispatchAndSave({ type: 'addField', field: { id: '', name, type: 'text' } });
             }
           }}
         >
