@@ -23,7 +23,7 @@ function RouteComponent() {
             filters: [
               {
                 name: 'Decision Matrix',
-                extensions: ['bson', 'dmtrx'],
+                extensions: ['bson', 'json'],
               },
             ],
           });
@@ -44,7 +44,7 @@ function RouteComponent() {
             filters: [
               {
                 name: 'Decision Matrix',
-                extensions: ['bson', 'dmtrx'],
+                extensions: ['bson', 'json'],
               },
             ],
           });

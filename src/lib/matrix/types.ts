@@ -56,10 +56,19 @@ export const fieldSchema = z.intersection(
 /** 字段 */
 export type Field = z.infer<typeof fieldSchema>;
 
+/** 带单位的值 */
+const unitValueSchema = z.object({
+  value: z.coerce.number(),
+  unit: z.optional(z.string()),
+});
+
+/** 带单位的值 */
+export type UnitValue = z.infer<typeof unitValueSchema>;
+
 /** 数据，键是 `id` 及各字段 ID */
 export const dataSchema = z.record(
   z.string(),
-  z.union([z.string(), z.int(), z.number(), z.date()]),
+  z.optional(z.union([z.string(), z.number(), unitValueSchema])),
 );
 
 /** 数据 */

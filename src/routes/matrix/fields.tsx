@@ -1,37 +1,28 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { Fragment } from 'react/jsx-runtime';
-import { useDebounceCallback } from 'usehooks-ts';
 
 import { FieldCollapsible } from '@/components/field-collapsible';
 import { InputBox } from '@/components/input-box';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { type ActionType, useMatrix, useMatrixDispatch } from '@/lib/matrix/context';
+import { useMatrix, useMatrixDispatch } from '@/lib/matrix/context';
 
 export const Route = createFileRoute('/matrix/fields')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { matrix, save } = useMatrix();
+  const { matrix } = useMatrix();
   const dispatch = useMatrixDispatch();
-  const saveLater = useDebounceCallback(save, 1000, { maxWait: 1000 * 60 });
-
-  const dispatchAndSave = (action: ActionType) => {
-    dispatch(action);
-    saveLater();
-  };
 
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-4 p-2">
         {matrix.fields.map((field, index) => (
           <Fragment key={field.id}>
-            <FieldCollapsible
-              {...{ index, total: matrix.fields.length, field, dispatch: dispatchAndSave }}
-            />
+            <FieldCollapsible {...{ index, total: matrix.fields.length, field, dispatch }} />
             <Separator />
           </Fragment>
         ))}
@@ -40,7 +31,7 @@ function RouteComponent() {
           description="Input the name of the new field:"
           onInput={(name) => {
             if (name) {
-              dispatchAndSave({ type: 'addField', field: { id: '', name, type: 'text' } });
+              dispatch({ type: 'addField', field: { id: '', name, type: 'text' } });
             }
           }}
         >

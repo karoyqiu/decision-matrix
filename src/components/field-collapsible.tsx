@@ -71,7 +71,6 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
     criteriaMode: 'all',
     defaultValues: field,
   });
-  const primary = form.watch('primary');
   const type = form.watch('type');
   // @ts-expect-error
   const units = useFieldArray<Field>({ control: form.control, name: 'units' });

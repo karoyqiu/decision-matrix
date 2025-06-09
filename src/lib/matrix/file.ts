@@ -1,5 +1,6 @@
-import { readFile, writeFile } from '@tauri-apps/plugin-fs';
-import { deserialize, serialize } from 'bson';
+import { readFile, readTextFile, writeFile, writeTextFile } from '@tauri-apps/plugin-fs';
+import { BSON, EJSON } from 'bson';
+import { isNullish } from 'radashi';
 
 import { type DecisionMatrix, decisionMatrixSchema } from './types';
 
@@ -10,7 +11,22 @@ import { type DecisionMatrix, decisionMatrixSchema } from './types';
  */
 export const save = (matrix: DecisionMatrix, filename: string) => {
   const verified = decisionMatrixSchema.parse(matrix);
-  const bytes = serialize(verified, { ignoreUndefined: true });
+
+  if (filename.endsWith('.json')) {
+    const text = EJSON.stringify(
+      verified,
+      (_key, value) => (isNullish(value) ? undefined : value),
+      2,
+      {
+        legacy: false,
+        relaxed: true,
+        useBigInt64: true,
+      },
+    );
+    return writeTextFile(filename, text);
+  }
+
+  const bytes = BSON.serialize(verified, { ignoreUndefined: true });
   return writeFile(filename, bytes);
 };
 
@@ -19,7 +35,15 @@ export const save = (matrix: DecisionMatrix, filename: string) => {
  * @param filename 要加载的文件名
  */
 export const load = async (filename: string) => {
-  const bytes = await readFile(filename);
-  const obj = deserialize(bytes);
+  let obj;
+
+  if (filename.endsWith('.json')) {
+    const text = await readTextFile(filename);
+    obj = EJSON.parse(text, { legacy: false, relaxed: true, useBigInt64: true });
+  } else {
+    const bytes = await readFile(filename);
+    obj = BSON.deserialize(bytes);
+  }
+
   return decisionMatrixSchema.parse(obj);
 };

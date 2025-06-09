@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { save } from '@tauri-apps/plugin-dialog';
 import {
   BracesIcon,
   HouseIcon,
@@ -28,7 +29,7 @@ import {
 import { useMatrix } from '@/lib/matrix/context';
 
 export function MatrixSidebar() {
-  const { matrix, save } = useMatrix();
+  const { matrix, save: saveMatrix } = useMatrix();
   const primaryField = matrix.fields.find((field) => field.primary);
 
   return (
@@ -44,9 +45,31 @@ export function MatrixSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={save}>
+            <SidebarMenuButton onClick={() => saveMatrix()}>
               <SaveIcon />
               Save
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={async () => {
+                const path = await save({
+                  title: 'Create Decision Matrix',
+                  filters: [
+                    {
+                      name: 'Decision Matrix',
+                      extensions: ['bson', 'json'],
+                    },
+                  ],
+                });
+
+                if (path) {
+                  await saveMatrix(path);
+                }
+              }}
+            >
+              <SaveIcon />
+              Save as
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

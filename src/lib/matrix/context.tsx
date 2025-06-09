@@ -3,7 +3,7 @@ import { type Dispatch, createContext, useCallback, useContext, useState } from 
 import { useImmerReducer } from 'use-immer';
 
 import { load as loadMatrix, save as saveMatrix } from './file';
-import type { DecisionMatrix, Field } from './types';
+import type { Data, DecisionMatrix, Field } from './types';
 
 /** 空矩阵 */
 export const emptyMatrix = Object.freeze<DecisionMatrix>({
@@ -58,6 +58,13 @@ type AddDataAction = {
   dataId: string;
 };
 
+/** 更新数据 */
+type UpdateDataAction = {
+  type: 'updateData';
+  /** 更新后的值 */
+  data: Data;
+};
+
 /** 动作 */
 export type ActionType =
   | ResetAction
@@ -65,7 +72,8 @@ export type ActionType =
   | UpdateFieldAction
   | MoveFieldAction
   | DeleteFieldAction
-  | AddDataAction;
+  | AddDataAction
+  | UpdateDataAction;
 
 /** 决策矩阵 reducer */
 const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
@@ -110,6 +118,16 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
       draft.data.push({ id: action.dataId });
       break;
 
+    case 'updateData':
+      {
+        const index = draft.data.findIndex((data) => data.id === action.data.id);
+
+        if (index >= 0) {
+          draft.data.splice(index, 1, action.data);
+        }
+      }
+      break;
+
     default:
       throw new Error('Unknown action');
   }
@@ -121,7 +139,7 @@ type MatrixState = {
   /** 创建决策矩阵文件 */
   create: (filename: string) => Promise<void>;
   /** 保存决策矩阵文件 */
-  save: () => Promise<void>;
+  save: (filename?: string) => Promise<void>;
   /** 加载决策矩阵文件 */
   load: (filename: string) => Promise<void>;
 };
@@ -151,7 +169,17 @@ export default function DecisionMatrixProivder({ children }: { children?: ReactN
     setFilename(path);
   }, []);
 
-  const save = useCallback(async () => saveMatrix(matrix, filename), [matrix, filename]);
+  const save = useCallback(
+    async (path?: string) => {
+      const file = path ?? filename;
+
+      if (file) {
+        await saveMatrix(matrix, filename);
+        setFilename(file);
+      }
+    },
+    [matrix, filename],
+  );
 
   const load = useCallback(async (path: string) => {
     const m = await loadMatrix(path);
@@ -170,12 +198,6 @@ export default function DecisionMatrixProivder({ children }: { children?: ReactN
 
 /** 使用当前决策矩阵 */
 export const useMatrix = () => useContext(DecisionMatrixContext);
-
-export const useMatrixData = (dataId: string) => {
-  const { matrix } = useMatrix();
-  const data = matrix.data.find((d) => d.id === dataId);
-  return data;
-};
 
 /** 使用动作分发函数 */
 export const useMatrixDispatch = () => useContext(DecisionMatrixDispatchContext);
