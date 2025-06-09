@@ -10,8 +10,10 @@ import {
 import { type Dispatch, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
+import { InputBox } from '@/components/input-box';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Form,
@@ -33,9 +35,6 @@ import {
 import type { ActionType } from '@/lib/matrix/context';
 import { type Field, fieldSchema } from '@/lib/matrix/types';
 import { cn } from '@/lib/utils';
-
-import { InputBox } from './input-box';
-import { Checkbox } from './ui/checkbox';
 
 type FieldNameProps = {
   field: Field;

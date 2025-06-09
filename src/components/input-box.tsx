@@ -2,6 +2,7 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 import { CheckIcon } from 'lucide-react';
 import { type ReactNode, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,9 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
-import { Button } from './ui/button';
-import { Input } from './ui/input';
+import { Input } from '@/components/ui/input';
 
 type InputBoxProps = {
   title: string;

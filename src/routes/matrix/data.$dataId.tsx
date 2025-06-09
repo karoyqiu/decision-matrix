@@ -2,6 +2,7 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { createFileRoute } from '@tanstack/react-router';
 import { formatISO, parseISO } from 'date-fns';
 import { SaveIcon } from 'lucide-react';
+import { useEffect } from 'react';
 import { type Control, type ControllerRenderProps, useForm } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 
@@ -40,7 +41,7 @@ function RouteComponent() {
     resolver: standardSchemaResolver(dataSchema),
     mode: 'onBlur',
     criteriaMode: 'all',
-    values: data,
+    defaultValues: data,
   });
 
   const submit = form.handleSubmit(
@@ -51,6 +52,10 @@ function RouteComponent() {
       console.error('Submit field form error', errors);
     },
   );
+
+  useEffect(() => {
+    form.reset(data);
+  }, [dataId]);
 
   return (
     <ScrollArea className="h-screen">
@@ -89,7 +94,6 @@ function DataField(props: DataFieldProps) {
       render={({ field: data }) => (
         <FormItem>
           <FormLabel>{field.name}</FormLabel>
-
           <DataFieldInput {...{ field, data }} />
           <FormMessage />
         </FormItem>
@@ -115,7 +119,7 @@ function DataFieldInput(props: DataFieldInputProps) {
             className="w-40"
             {...data}
             value={value}
-            onChange={(e) => data.onChange(parseISO(e.currentTarget.value))}
+            onChange={(e) => data.onChange(parseISO(e.currentTarget.value).getTime())}
             type="date"
             required={field.primary}
           />
@@ -125,7 +129,7 @@ function DataFieldInput(props: DataFieldInputProps) {
 
     case 'list':
       return (
-        <Select onValueChange={data.onChange} defaultValue={data.value as string}>
+        <Select onValueChange={data.onChange} value={data.value as string}>
           <FormControl>
             <SelectTrigger ref={data.ref} className="w-40">
               <SelectValue placeholder={`Select a ${field.name}`} />
@@ -195,7 +199,7 @@ function NumericField(props: DataFieldInputProps) {
         customInput={Input}
         required={field.primary}
         decimalScale={precision}
-        value={value?.value}
+        value={value?.value ?? ''}
         onValueChange={(values) => updateValue({ value: values.floatValue })}
         onBlur={data.onBlur}
         name={data.name}
@@ -208,10 +212,7 @@ function NumericField(props: DataFieldInputProps) {
     return (
       <div className="flex">
         {numeric}
-        <Select
-          onValueChange={(unit) => updateValue({ unit })}
-          defaultValue={value?.unit ?? units[0]}
-        >
+        <Select onValueChange={(unit) => updateValue({ unit })} value={value?.unit ?? units[0]}>
           <FormControl>
             <SelectTrigger className="rounded-s-none">
               <SelectValue placeholder={'Select a unit'} />

@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { save } from '@tauri-apps/plugin-dialog';
 import {
   BracesIcon,
@@ -26,10 +26,12 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import { useMatrix } from '@/lib/matrix/context';
+import { useMatrix, useMatrixDispatch } from '@/lib/matrix/context';
 
 export function MatrixSidebar() {
   const { matrix, save: saveMatrix } = useMatrix();
+  const dispatch = useMatrixDispatch();
+  const navigate = useNavigate();
   const primaryField = matrix.fields.find((field) => field.primary);
 
   return (
@@ -93,7 +95,14 @@ export function MatrixSidebar() {
                     Data
                   </Link>
                 </SidebarMenuButton>
-                <SidebarMenuAction title="Add data">
+                <SidebarMenuAction
+                  title="Add data"
+                  onClick={async () => {
+                    const dataId = crypto.randomUUID();
+                    dispatch({ type: 'addData', dataId });
+                    await navigate({ to: '/matrix/data/$dataId', params: { dataId } });
+                  }}
+                >
                   <PlusIcon />
                   <span className="sr-only">Add data</span>
                 </SidebarMenuAction>
