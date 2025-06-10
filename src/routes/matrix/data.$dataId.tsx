@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { createFileRoute } from '@tanstack/react-router';
-import { formatISO, parseISO } from 'date-fns';
-import { SaveIcon } from 'lucide-react';
+import { formatISO } from 'date-fns';
+import { TrashIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import { type Control, type ControllerRenderProps, useForm } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
@@ -33,6 +33,7 @@ export const Route = createFileRoute('/matrix/data/$dataId')({
 });
 
 function RouteComponent() {
+  'use no memo';
   const { matrix } = useMatrix();
   const dispatch = useMatrixDispatch();
   const { dataId } = Route.useParams();
@@ -41,7 +42,7 @@ function RouteComponent() {
     resolver: standardSchemaResolver(dataSchema),
     mode: 'onBlur',
     criteriaMode: 'all',
-    defaultValues: data,
+    values: data,
   });
 
   const submit = form.handleSubmit(
@@ -54,12 +55,12 @@ function RouteComponent() {
   );
 
   useEffect(() => {
-    form.reset(data);
+    setTimeout(() => form.reset(data), 0);
   }, [dataId]);
 
   return (
     <ScrollArea className="h-screen">
-      <Form {...form}>
+      <Form {...form} key={1}>
         <form
           className="flex flex-col gap-4 p-4"
           onSubmit={submit}
@@ -69,12 +70,16 @@ function RouteComponent() {
           {matrix.fields.map((field) => (
             <DataField key={field.id} control={form.control} field={field} />
           ))}
-          <Button type="submit">
-            <SaveIcon />
-            Save
-          </Button>
         </form>
       </Form>
+      <Button
+        className="m-4"
+        variant="destructive"
+        onClick={() => dispatch({ type: 'deleteData', dataId })}
+      >
+        <TrashIcon />
+        Delete
+      </Button>
     </ScrollArea>
   );
 }
@@ -119,7 +124,9 @@ function DataFieldInput(props: DataFieldInputProps) {
             className="w-40"
             {...data}
             value={value}
-            onChange={(e) => data.onChange(parseISO(e.currentTarget.value).getTime())}
+            onChange={(e) => {
+              data.onChange(e.currentTarget.valueAsNumber);
+            }}
             type="date"
             required={field.primary}
           />
@@ -129,7 +136,7 @@ function DataFieldInput(props: DataFieldInputProps) {
 
     case 'list':
       return (
-        <Select onValueChange={data.onChange} value={data.value as string}>
+        <Select onValueChange={data.onChange} value={(data.value as string) ?? ''}>
           <FormControl>
             <SelectTrigger ref={data.ref} className="w-40">
               <SelectValue placeholder={`Select a ${field.name}`} />
@@ -153,7 +160,7 @@ function DataFieldInput(props: DataFieldInputProps) {
     default:
       return (
         <FormControl>
-          <Input {...data} value={data.value as string} required={field.primary} />
+          <Input {...data} value={(data.value as string) ?? ''} required={field.primary} />
         </FormControl>
       );
   }

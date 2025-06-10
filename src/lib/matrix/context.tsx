@@ -65,6 +65,13 @@ type UpdateDataAction = {
   data: Data;
 };
 
+/** 删除数据 */
+type DeleteDataAction = {
+  type: 'deleteData';
+  /** 数据 ID */
+  dataId: string;
+};
+
 /** 动作 */
 export type ActionType =
   | ResetAction
@@ -73,7 +80,8 @@ export type ActionType =
   | MoveFieldAction
   | DeleteFieldAction
   | AddDataAction
-  | UpdateDataAction;
+  | UpdateDataAction
+  | DeleteDataAction;
 
 /** 决策矩阵 reducer */
 const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
@@ -124,6 +132,18 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
 
         if (index >= 0) {
           draft.data.splice(index, 1, action.data);
+        }
+      }
+      break;
+
+    case 'deleteData':
+      {
+        {
+          const index = draft.data.findIndex((data) => data.id === action.dataId);
+
+          if (index >= 0) {
+            draft.data.splice(index, 1);
+          }
         }
       }
       break;
