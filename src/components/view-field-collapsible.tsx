@@ -147,7 +147,7 @@ export function ViewFieldCollapsible(props: ViewFieldCollapsibleProps) {
                   <FormControl>
                     <Input {...field} defaultValue="CNY" />
                   </FormControl>
-                  <FormDescription>Three upper case letters.</FormDescription>
+                  <FormDescription>Three uppercase letters.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
