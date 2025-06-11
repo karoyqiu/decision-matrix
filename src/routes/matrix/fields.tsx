@@ -18,7 +18,7 @@ function RouteComponent() {
   const dispatch = useMatrixDispatch();
 
   return (
-    <ScrollArea className="h-screen">
+    <ScrollArea className="h-dvh">
       <div className="flex flex-col gap-4 p-2">
         {matrix.fields.map((field, index) => (
           <Fragment key={field.id}>

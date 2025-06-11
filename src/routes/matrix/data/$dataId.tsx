@@ -59,7 +59,7 @@ function RouteComponent() {
   }, [dataId]);
 
   return (
-    <ScrollArea className="h-screen">
+    <ScrollArea className="h-dvh">
       <Form {...form} key={1}>
         <form
           className="flex flex-col gap-4 p-4"

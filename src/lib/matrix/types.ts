@@ -1,14 +1,21 @@
 import { z } from 'zod/v4-mini';
 
-/** 字段 */
-export const fieldSchema = z.object({
+const baseFieldSchema = z.object({
   id: z.uuid(),
   /** 名称 */
   name: z.string(),
+  /** 类型：文本、日期、整数、小数、金额、列表 */
+  type: z.enum(['text', 'date', 'int', 'float', 'money', 'list']),
+  /** 显示精度，小数点后位数 */
+  precision: z.optional(z.coerce.number().check(z.int(), z.gte(0))),
+  /** 货币，3 字母大写 */
+  currency: z.optional(z.string().check(z.toUpperCase(), z.length(3))),
+});
+
+/** 字段 */
+export const fieldSchema = z.extend(baseFieldSchema, {
   /** 是否为主字段 */
   primary: z.optional(z.boolean()),
-  /** 类型：整数、小数、金额 */
-  type: z.enum(['text', 'date', 'int', 'float', 'money', 'list']),
   /** 可选单位列表，第一个为基准单位，如 `[g, kg]` */
   units: z.optional(z.array(z.string())),
   /**
@@ -19,10 +26,6 @@ export const fieldSchema = z.object({
    * 其中 `from` 和 `to` 是 `units` 中的一员。
    */
   convert: z.optional(z.string()),
-  /** 显示精度，小数点后位数 */
-  precision: z.optional(z.coerce.number().check(z.int(), z.gte(0))),
-  /** 货币，3 字母大写 */
-  currency: z.optional(z.string().check(z.toUpperCase(), z.length(3))),
   /** 列表可选值 */
   values: z.optional(z.array(z.string())),
 });
@@ -48,6 +51,15 @@ export const dataSchema = z.record(
 /** 数据 */
 export type Data = z.infer<typeof dataSchema>;
 
+/** 视图字段 */
+export const viewFieldSchema = z.extend(baseFieldSchema, {
+  /** 公式：`(data: Data) => string | number | UnitValue` */
+  formula: z.optional(z.string()),
+});
+
+/** 视图字段 */
+export type ViewField = z.infer<typeof viewFieldSchema>;
+
 /** 视图 */
 export const viewSchema = z.object({
   id: z.uuid(),
@@ -56,12 +68,7 @@ export const viewSchema = z.object({
   /** 数据方向，按列显示，按行显示 */
   dataOrientation: z.enum(['asColumn', 'asRow']),
   /** 字段定义 */
-  fields: z.array(
-    z.extend(fieldSchema, {
-      /** 公式：`(data: Data) => string | number | UnitValue` */
-      formula: z.optional(z.string()),
-    }),
-  ),
+  fields: z.array(viewFieldSchema),
 });
 
 /** 视图 */

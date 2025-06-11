@@ -70,7 +70,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
     criteriaMode: 'all',
     defaultValues: field,
   });
-  const type = form.watch('type');
+  const type = field.type;
   // @ts-expect-error
   const units = useFieldArray({ control: form.control, name: 'units' });
   // @ts-expect-error
@@ -238,7 +238,7 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                     <FormItem>
                       <FormLabel>Converstion</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input className="font-mono" {...field} />
                       </FormControl>
                       <FormDescription>
                         <code>{`(value: number, from: Unit, to: Unit) => number`}</code>
@@ -281,37 +281,35 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
               />
             )}
             {type === 'list' && (
-              <>
-                <FormItem>
-                  <FormLabel>Values</FormLabel>
-                  <FormControl>
-                    <Input
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          const input = e.currentTarget;
-                          listValues.append(input.value);
-                          input.value = '';
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormDescription className="flex flex-wrap gap-1">
-                    {listValues.fields.map((value, index) => (
-                      <Badge key={value.id} variant="secondary">
-                        {form.getValues('values')?.at(index)}
-                        <Button
-                          variant="secondary"
-                          className="size-2"
-                          onClick={() => listValues.remove(index)}
-                        >
-                          <DeleteIcon />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </FormDescription>
-                </FormItem>
-              </>
+              <FormItem>
+                <FormLabel>Values</FormLabel>
+                <FormControl>
+                  <Input
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const input = e.currentTarget;
+                        listValues.append(input.value);
+                        input.value = '';
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormDescription className="flex flex-wrap gap-1">
+                  {listValues.fields.map((value, index) => (
+                    <Badge key={value.id} variant="secondary">
+                      {form.getValues('values')?.at(index)}
+                      <Button
+                        variant="secondary"
+                        className="size-2"
+                        onClick={() => listValues.remove(index)}
+                      >
+                        <DeleteIcon />
+                      </Button>
+                    </Badge>
+                  ))}
+                </FormDescription>
+              </FormItem>
             )}
           </form>
         </Form>
