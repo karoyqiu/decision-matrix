@@ -1,6 +1,6 @@
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { createFileRoute } from '@tanstack/react-router';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, TrashIcon } from 'lucide-react';
 import { Fragment, useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -100,21 +100,33 @@ function RouteComponent() {
               </FormItem>
             )}
           />
-          <Button
-            type="button"
-            onClick={() => {
-              fields.append(
-                matrix.fields.map((field) => ({
-                  ...field,
-                  id: crypto.randomUUID(),
-                  formula: `return data['${field.name}'];`,
-                })),
-              );
-            }}
-          >
-            <PlusIcon />
-            Add all fields
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              onClick={() => {
+                fields.append(
+                  matrix.fields.map((field) => ({
+                    ...field,
+                    id: crypto.randomUUID(),
+                    formula: `return data['${field.name}'];`,
+                  })),
+                );
+              }}
+            >
+              <PlusIcon />
+              Add all fields
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                form.setValue('fields', []);
+              }}
+            >
+              <TrashIcon />
+              Remove all fields
+            </Button>
+          </div>
           {fields.fields.map((field, index) => (
             <Fragment key={field.id}>
               <ViewFieldCollapsible
