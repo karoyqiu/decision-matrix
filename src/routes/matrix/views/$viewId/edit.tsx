@@ -108,6 +108,7 @@ function RouteComponent() {
                   matrix.fields.map((field) => ({
                     ...field,
                     id: crypto.randomUUID(),
+                    unit: field.units && field.units[0],
                     formula: `return data['${field.name}'];`,
                   })),
                 );

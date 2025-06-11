@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { type Dispatch, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { NumericFormat } from 'react-number-format';
 
 import { InputBox } from '@/components/input-box';
 import { Badge } from '@/components/ui/badge';
@@ -257,7 +258,15 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                   <FormItem>
                     <FormLabel>Precision</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" inputMode="numeric" />
+                      <NumericFormat
+                        customInput={Input}
+                        name={field.name}
+                        getInputRef={field.ref}
+                        onBlur={field.onBlur}
+                        disabled={field.disabled}
+                        onValueChange={(values) => field.onChange(values.floatValue)}
+                        inputMode="numeric"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

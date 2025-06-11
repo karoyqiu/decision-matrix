@@ -58,6 +58,8 @@ export type Data = z.infer<typeof dataSchema>;
 export const viewFieldSchema = z.extend(baseFieldSchema, {
   /** 公式：`(data: Data) => string | number | UnitValue` */
   formula: z.string(),
+  /** 单位 */
+  unit: z.optional(z.string()),
 });
 
 /** 视图字段 */

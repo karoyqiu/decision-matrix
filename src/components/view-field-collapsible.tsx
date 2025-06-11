@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon, ChevronRightIcon, CopyIcon, TrashIcon } from 'lucide-react';
 import { useState } from 'react';
 import { type Control, type UseFieldArrayReturn } from 'react-hook-form';
+import { NumericFormat } from 'react-number-format';
 
 import { InputBox } from '@/components/input-box';
 import { Button } from '@/components/ui/button';
@@ -130,7 +131,15 @@ export function ViewFieldCollapsible(props: ViewFieldCollapsibleProps) {
                 <FormItem>
                   <FormLabel>Precision</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" inputMode="numeric" />
+                    <NumericFormat
+                      customInput={Input}
+                      name={field.name}
+                      getInputRef={field.ref}
+                      onBlur={field.onBlur}
+                      disabled={field.disabled}
+                      onValueChange={(values) => field.onChange(values.floatValue)}
+                      inputMode="numeric"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,6 +157,21 @@ export function ViewFieldCollapsible(props: ViewFieldCollapsibleProps) {
                     <Input {...field} defaultValue="CNY" />
                   </FormControl>
                   <FormDescription>Three uppercase letters.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          {(type === 'int' || type === 'float') && (
+            <FormField
+              control={control}
+              name={`fields.${index}.unit`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Unit</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

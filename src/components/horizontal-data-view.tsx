@@ -1,19 +1,30 @@
 import { type DisplayColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { mapKeys } from 'radashi';
+import { mapEntries } from 'radashi';
 
 import { DataTable } from '@/components/ui/data-table';
-import { type Data, type Field, type View, dataValueSchema } from '@/lib/matrix/types';
+import {
+  type Data,
+  type Field,
+  type View,
+  type ViewField,
+  dataValueSchema,
+} from '@/lib/matrix/types';
 
 const wrapData = (fields: Field[], data: Data) =>
-  mapKeys(data, (key) => fields.find((field) => field.id === key)?.name ?? key);
+  mapEntries(data, (key, value) => {
+    const field = fields.find((field) => field.id === key);
+    const k = field?.name ?? key;
+    const v = field?.type === 'date' ? new Date(value as number).toLocaleDateString() : value;
+    return [k, v];
+  });
 
-const columnForField = (field: Field) => {
+const columnForField = (field: ViewField) => {
   const def: DisplayColumnDef<Data> = {
     id: field.id,
   };
 
-  if (field.units && field.units.length > 0) {
-    def.header = `${field.name} (${field.units[0]})`;
+  if (field.unit) {
+    def.header = `${field.name} (${field.unit})`;
   } else if (field.currency) {
     def.header = `${field.name} (${field.currency})`;
   } else {
@@ -51,6 +62,7 @@ export function HorizontalDataView(props: HorizontalDataViewProps) {
       const result = dataValueSchema.safeParse(fns[index](wrapData(fields, row)));
 
       if (result.success) {
+        // TODO: 单位转换
         if (typeof result.data === 'string' || typeof result.data === 'number') {
           return result.data;
         }
