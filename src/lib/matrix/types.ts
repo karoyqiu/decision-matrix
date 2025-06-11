@@ -1,8 +1,14 @@
 import { z } from 'zod/v4-mini';
 
-const numericFieldSchema = z.object({
+/** 字段 */
+export const fieldSchema = z.object({
+  id: z.uuid(),
+  /** 名称 */
+  name: z.string(),
+  /** 是否为主字段 */
+  primary: z.optional(z.boolean()),
   /** 类型：整数、小数、金额 */
-  type: z.enum(['int', 'float']),
+  type: z.enum(['text', 'date', 'int', 'float', 'money', 'list']),
   /** 可选单位列表，第一个为基准单位，如 `[g, kg]` */
   units: z.optional(z.array(z.string())),
   /**
@@ -15,43 +21,11 @@ const numericFieldSchema = z.object({
   convert: z.optional(z.string()),
   /** 显示精度，小数点后位数 */
   precision: z.optional(z.coerce.number().check(z.int(), z.gte(0))),
-});
-
-const moneyFieldSchema = z.object({
-  /** 类型：金额 */
-  type: z.literal('money'),
   /** 货币，3 字母大写 */
-  currency: z._default(z.string().check(z.toUpperCase(), z.length(3)), 'CNY'),
-});
-
-const listFieldSchema = z.object({
-  /** 类型：列表 */
-  type: z.literal('list'),
+  currency: z.optional(z.string().check(z.toUpperCase(), z.length(3))),
   /** 列表可选值 */
-  values: z.array(z.string()),
+  values: z.optional(z.array(z.string())),
 });
-
-const otherFieldSchema = z.object({
-  /** 类型：文字、日期 */
-  type: z.enum(['text', 'date']),
-});
-
-/** 字段 */
-export const fieldSchema = z.intersection(
-  z.object({
-    id: z.uuid(),
-    /** 名称 */
-    name: z.string(),
-    /** 是否为主字段 */
-    primary: z.optional(z.boolean()),
-  }),
-  z.discriminatedUnion('type', [
-    numericFieldSchema,
-    moneyFieldSchema,
-    listFieldSchema,
-    otherFieldSchema,
-  ]),
-);
 
 /** 字段 */
 export type Field = z.infer<typeof fieldSchema>;
@@ -73,6 +47,25 @@ export const dataSchema = z.record(
 
 /** 数据 */
 export type Data = z.infer<typeof dataSchema>;
+
+/** 视图 */
+export const viewSchema = z.object({
+  id: z.uuid(),
+  /** 名称 */
+  name: z.string(),
+  /** 数据方向，按列显示，按行显示 */
+  dataOrientation: z.enum(['asColumn', 'asRow']),
+  /** 字段定义 */
+  fields: z.array(
+    z.extend(fieldSchema, {
+      /** 公式：`(data: Data) => string | number | UnitValue` */
+      formula: z.optional(z.string()),
+    }),
+  ),
+});
+
+/** 视图 */
+export type View = z.infer<typeof viewSchema>;
 
 export const decisionMatrixSchema = z.object({
   /** 版本号 */
@@ -121,6 +114,8 @@ export const decisionMatrixSchema = z.object({
   }),
   /** 数据列表 */
   data: z.array(dataSchema),
+  /** 视图列表 */
+  views: z.array(viewSchema),
 });
 
 /** 决策矩阵 */

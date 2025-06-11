@@ -72,9 +72,9 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
   });
   const type = form.watch('type');
   // @ts-expect-error
-  const units = useFieldArray<Field>({ control: form.control, name: 'units' });
+  const units = useFieldArray({ control: form.control, name: 'units' });
   // @ts-expect-error
-  const listValues = useFieldArray<Field>({ control: form.control, name: 'values' });
+  const listValues = useFieldArray({ control: form.control, name: 'values' });
 
   const submit = form.handleSubmit(
     (values) => {
@@ -210,7 +210,6 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           const input = e.currentTarget;
-                          // @ts-expect-error
                           units.append(input.value);
                           input.value = '';
                         }
@@ -291,7 +290,6 @@ export function FieldCollapsible(props: FieldCollapsibleProps) {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           const input = e.currentTarget;
-                          // @ts-expect-error
                           listValues.append(input.value);
                           input.value = '';
                         }

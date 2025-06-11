@@ -2,11 +2,13 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { save } from '@tauri-apps/plugin-dialog';
 import {
   BracesIcon,
+  DatabaseIcon,
   HouseIcon,
   ListIcon,
   PencilIcon,
   PlusIcon,
   SaveIcon,
+  Table2Icon,
   TableIcon,
 } from 'lucide-react';
 
@@ -91,7 +93,7 @@ export function MatrixSidebar() {
                     className="[&.active]:bg-primary [&.active]:text-primary-foreground"
                     to="/matrix/data"
                   >
-                    <TableIcon />
+                    <DatabaseIcon />
                     Data
                   </Link>
                 </SidebarMenuButton>
@@ -118,9 +120,7 @@ export function MatrixSidebar() {
                             params={{ dataId }}
                           >
                             <BracesIcon />
-                            <span className="">
-                              {data[primaryField?.id ?? 'id']?.toString() ?? dataId}
-                            </span>
+                            <span>{data[primaryField?.id ?? 'id']?.toString() ?? dataId}</span>
                           </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -138,6 +138,60 @@ export function MatrixSidebar() {
                     Fields
                   </Link>
                 </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    className="[&.active]:bg-primary [&.active]:text-primary-foreground"
+                    to="/matrix/views"
+                  >
+                    <TableIcon />
+                    Views
+                  </Link>
+                </SidebarMenuButton>
+                <SidebarMenuAction
+                  title="Add data"
+                  onClick={async () => {
+                    const viewId = crypto.randomUUID();
+                    dispatch({ type: 'addView', viewId });
+                    await navigate({ to: '/matrix/views/$viewId/edit', params: { viewId } });
+                  }}
+                >
+                  <PlusIcon />
+                  <span className="sr-only">Add view</span>
+                </SidebarMenuAction>
+                <SidebarMenuSub>
+                  {matrix.views.map((view) => {
+                    return (
+                      <SidebarMenuSubItem key={view.id}>
+                        <SidebarMenuSubButton asChild>
+                          <Link
+                            className="[&.active]:bg-primary [&.active]:text-primary-foreground"
+                            to="/matrix/views/$viewId"
+                            params={{ viewId: view.id }}
+                          >
+                            <Table2Icon />
+                            <span>{view.name}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                        <SidebarMenuSub>
+                          <SidebarMenuSubItem key={view.id}>
+                            <SidebarMenuSubButton asChild>
+                              <Link
+                                className="[&.active]:bg-primary [&.active]:text-primary-foreground"
+                                to="/matrix/views/$viewId/edit"
+                                params={{ viewId: view.id }}
+                              >
+                                <PencilIcon />
+                                Edit
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        </SidebarMenuSub>
+                      </SidebarMenuSubItem>
+                    );
+                  })}
+                </SidebarMenuSub>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

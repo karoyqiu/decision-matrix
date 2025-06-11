@@ -143,11 +143,12 @@ function DataFieldInput(props: DataFieldInputProps) {
             </SelectTrigger>
           </FormControl>
           <SelectContent>
-            {field.values.map((v) => (
-              <SelectItem key={v} value={v}>
-                {v}
-              </SelectItem>
-            ))}
+            {field.values &&
+              field.values.map((v) => (
+                <SelectItem key={v} value={v}>
+                  {v}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       );
@@ -185,7 +186,7 @@ function NumericField(props: DataFieldInputProps) {
       break;
 
     case 'money':
-      units = [field.currency];
+      units = [field.currency ?? 'CNY'];
       precision = 2;
       break;
 

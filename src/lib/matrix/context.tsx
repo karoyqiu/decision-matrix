@@ -3,7 +3,7 @@ import { type Dispatch, createContext, useCallback, useContext, useState } from 
 import { useImmerReducer } from 'use-immer';
 
 import { load as loadMatrix, save as saveMatrix } from './file';
-import type { Data, DecisionMatrix, Field } from './types';
+import type { Data, DecisionMatrix, Field, View } from './types';
 
 /** 空矩阵 */
 export const emptyMatrix = Object.freeze<DecisionMatrix>({
@@ -11,6 +11,7 @@ export const emptyMatrix = Object.freeze<DecisionMatrix>({
   name: 'Decision Matrix',
   fields: [],
   data: [],
+  views: [],
 });
 
 /** 重置矩阵 */
@@ -72,6 +73,27 @@ type DeleteDataAction = {
   dataId: string;
 };
 
+/** 添加视图 */
+type AddViewAction = {
+  type: 'addView';
+  /** 视图 ID */
+  viewId: string;
+};
+
+/** 更新视图 */
+type UpdateViewAction = {
+  type: 'updateView';
+  /** 更新后的值 */
+  view: View;
+};
+
+/** 删除视图 */
+type DeleteViewAction = {
+  type: 'deleteView';
+  /** 视图 ID */
+  viewId: string;
+};
+
 /** 动作 */
 export type ActionType =
   | ResetAction
@@ -81,7 +103,10 @@ export type ActionType =
   | DeleteFieldAction
   | AddDataAction
   | UpdateDataAction
-  | DeleteDataAction;
+  | DeleteDataAction
+  | AddViewAction
+  | UpdateViewAction
+  | DeleteViewAction;
 
 /** 决策矩阵 reducer */
 const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
@@ -143,6 +168,37 @@ const decisionMatrixReducer = (draft: DecisionMatrix, action: ActionType) => {
 
           if (index >= 0) {
             draft.data.splice(index, 1);
+          }
+        }
+      }
+      break;
+
+    case 'addView':
+      draft.views.push({
+        id: action.viewId,
+        name: `View ${draft.views.length}`,
+        dataOrientation: 'asColumn',
+        fields: [],
+      });
+      break;
+
+    case 'updateView':
+      {
+        const index = draft.views.findIndex((view) => view.id === action.view.id);
+
+        if (index >= 0) {
+          draft.views.splice(index, 1, action.view);
+        }
+      }
+      break;
+
+    case 'deleteView':
+      {
+        {
+          const index = draft.views.findIndex((view) => view.id === action.viewId);
+
+          if (index >= 0) {
+            draft.views.splice(index, 1);
           }
         }
       }
