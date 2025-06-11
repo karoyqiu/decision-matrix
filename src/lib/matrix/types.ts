@@ -42,11 +42,14 @@ const unitValueSchema = z.object({
 /** 带单位的值 */
 export type UnitValue = z.infer<typeof unitValueSchema>;
 
+/** 数据值 */
+export const dataValueSchema = z.union([z.string(), z.number(), unitValueSchema]);
+
+/** 数据值 */
+export type DataValue = z.infer<typeof dataValueSchema>;
+
 /** 数据，键是 `id` 及各字段 ID */
-export const dataSchema = z.record(
-  z.string(),
-  z.optional(z.union([z.string(), z.number(), unitValueSchema])),
-);
+export const dataSchema = z.record(z.string(), z.optional(dataValueSchema));
 
 /** 数据 */
 export type Data = z.infer<typeof dataSchema>;
@@ -54,7 +57,7 @@ export type Data = z.infer<typeof dataSchema>;
 /** 视图字段 */
 export const viewFieldSchema = z.extend(baseFieldSchema, {
   /** 公式：`(data: Data) => string | number | UnitValue` */
-  formula: z.optional(z.string()),
+  formula: z.string(),
 });
 
 /** 视图字段 */

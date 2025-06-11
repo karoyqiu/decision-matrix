@@ -17,9 +17,9 @@ function RouteComponent() {
   }, [save]);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="overflow-clip">
       <MatrixSidebar />
-      <main className="flex h-svh w-full flex-col">
+      <main className="flex h-svh min-w-0 flex-auto flex-col">
         <Outlet />
       </main>
     </SidebarProvider>

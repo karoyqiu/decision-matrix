@@ -160,7 +160,7 @@ export function ViewFieldCollapsible(props: ViewFieldCollapsibleProps) {
               <FormItem>
                 <FormLabel>Formula</FormLabel>
                 <FormControl>
-                  <Input className="font-mono" {...field} />
+                  <Input className="font-mono" {...field} required />
                 </FormControl>
                 <FormDescription>
                   <code>{`(data: Data) => string | number | UnitValue`}</code>

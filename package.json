@@ -23,6 +23,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tanstack/react-router": "^1.120.18",
+    "@tanstack/react-table": "^8.21.3",
     "@tauri-apps/api": "^2.5.0",
     "@tauri-apps/plugin-dialog": "^2.2.2",
     "@tauri-apps/plugin-fs": "^2.3.0",
