@@ -1,10 +1,10 @@
 import { type DisplayColumnDef, createColumnHelper } from '@tanstack/react-table';
 
 import { DataTable } from '@/components/ui/data-table';
-import { type ViewData, wrapData } from '@/lib/dataView';
+import { type BoundaryData, type ViewData, calcBoundaryData, wrapData } from '@/lib/dataView';
 import { type Data, type Field, type View, type ViewField } from '@/lib/matrix/types';
 
-const columnForField = (field: ViewField) => {
+const columnForField = (field: ViewField, boundaries: BoundaryData) => {
   const def: DisplayColumnDef<ViewData> = {
     id: field.id,
   };
@@ -22,7 +22,12 @@ const columnForField = (field: ViewField) => {
     case 'float':
     case 'int':
     case 'money':
-      def.meta = { className: `text-end font-mono` };
+      def.meta = {
+        className: 'text-end font-mono',
+        lowest: boundaries.lowest[field.id],
+        highest: boundaries.highest[field.id],
+        lowerBetter: field.colorScales === 'lowerBetter',
+      };
       break;
 
     default:
@@ -41,10 +46,11 @@ type HorizontalDataViewProps = {
 export function HorizontalDataView(props: HorizontalDataViewProps) {
   const { fields, data, view } = props;
   const viewData = wrapData(fields, data, view.fields);
+  const boundaries = calcBoundaryData(view.fields, viewData);
 
   const columnHelper = createColumnHelper<ViewData>();
   const columns = view.fields.map((field) =>
-    columnHelper.accessor(field.id, columnForField(field)),
+    columnHelper.accessor(field.id, columnForField(field, boundaries)),
   );
 
   return <DataTable className="grow" columns={columns} data={viewData} />;

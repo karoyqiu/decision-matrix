@@ -5,6 +5,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { isNullish } from 'radashi';
 
 import {
   Table,
@@ -14,6 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getColorScale } from '@/lib/dataView';
+import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData, TValue> {
   className?: string;
@@ -54,11 +57,28 @@ export function DataTable<TData extends RowData, TValue>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className={cell.column.columnDef.meta?.className}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const { meta } = cell.column.columnDef;
+                  const value = cell.getValue();
+                  let className = meta?.className;
+
+                  if (
+                    !isNullish(meta?.lowest) &&
+                    !isNullish(meta.highest) &&
+                    typeof value === 'number'
+                  ) {
+                    className = cn(
+                      className,
+                      getColorScale(meta.lowest, meta.highest, value, !!meta.lowerBetter),
+                    );
+                  }
+
+                  return (
+                    <TableCell key={cell.id} className={className}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (
