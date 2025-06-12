@@ -103,10 +103,7 @@ export function ViewFieldCollapsible(props: ViewFieldCollapsibleProps) {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue
-                        onBlur={field.onBlur}
-                        placeholder="Select a verified email to display"
-                      />
+                      <SelectValue onBlur={field.onBlur} placeholder="Select type" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -193,6 +190,33 @@ export function ViewFieldCollapsible(props: ViewFieldCollapsibleProps) {
               </FormItem>
             )}
           />
+          {(type === 'int' || type === 'float' || type === 'money') && (
+            <FormField
+              control={control}
+              name={`fields.${index}.colorScales`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Use color scales</FormLabel>
+                  <Select
+                    disabled={field.disabled}
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue onBlur={field.onBlur} placeholder="Select color scale" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="lowerBetter">The lower the better</SelectItem>
+                      <SelectItem value="higherBetter">The heigher the better</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          )}
         </div>
       </CollapsibleContent>
     </Collapsible>

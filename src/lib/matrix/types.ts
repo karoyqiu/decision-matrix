@@ -56,10 +56,12 @@ export type Data = z.infer<typeof dataSchema>;
 
 /** 视图字段 */
 export const viewFieldSchema = z.extend(baseFieldSchema, {
-  /** 公式：`(data: Data) => string | number | UnitValue` */
+  /** 公式：`(data: Data) => string | number` */
   formula: z.string(),
   /** 单位 */
   unit: z.optional(z.string()),
+  /** 是否使用色阶条件格式：越低越好，越高越好，不使用色阶 */
+  colorScales: z.optional(z.enum(['lowerBetter', 'higherBetter', 'none'])),
 });
 
 /** 视图字段 */

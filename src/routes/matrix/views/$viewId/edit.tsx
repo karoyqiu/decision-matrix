@@ -110,6 +110,8 @@ function RouteComponent() {
                     id: crypto.randomUUID(),
                     unit: field.units && field.units[0],
                     formula: `return data['${field.name}'];`,
+                    colorScales:
+                      field.units?.length || field.currency?.length ? 'higherBetter' : undefined,
                   })),
                 );
               }}

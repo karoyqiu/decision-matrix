@@ -1,25 +1,11 @@
 import { type DisplayColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { mapEntries } from 'radashi';
 
 import { DataTable } from '@/components/ui/data-table';
-import {
-  type Data,
-  type Field,
-  type View,
-  type ViewField,
-  dataValueSchema,
-} from '@/lib/matrix/types';
-
-const wrapData = (fields: Field[], data: Data) =>
-  mapEntries(data, (key, value) => {
-    const field = fields.find((field) => field.id === key);
-    const k = field?.name ?? key;
-    const v = field?.type === 'date' ? new Date(value as number).toLocaleDateString() : value;
-    return [k, v];
-  });
+import { type ViewData, wrapData } from '@/lib/dataView';
+import { type Data, type Field, type View, type ViewField } from '@/lib/matrix/types';
 
 const columnForField = (field: ViewField) => {
-  const def: DisplayColumnDef<Data> = {
+  const def: DisplayColumnDef<ViewData> = {
     id: field.id,
   };
 
@@ -36,7 +22,7 @@ const columnForField = (field: ViewField) => {
     case 'float':
     case 'int':
     case 'money':
-      def.meta = { className: 'text-end font-mono' };
+      def.meta = { className: `text-end font-mono` };
       break;
 
     default:
@@ -54,25 +40,12 @@ type HorizontalDataViewProps = {
 
 export function HorizontalDataView(props: HorizontalDataViewProps) {
   const { fields, data, view } = props;
-  const fns = view.fields.map((field) => new Function('data', field.formula));
+  const viewData = wrapData(fields, data, view.fields);
 
-  const columnHelper = createColumnHelper<Data>();
-  const columns = view.fields.map((field, index) =>
-    columnHelper.accessor((row) => {
-      const result = dataValueSchema.safeParse(fns[index](wrapData(fields, row)));
-
-      if (result.success) {
-        // TODO: 单位转换
-        if (typeof result.data === 'string' || typeof result.data === 'number') {
-          return result.data;
-        }
-
-        return result.data.value;
-      }
-
-      return null;
-    }, columnForField(field)),
+  const columnHelper = createColumnHelper<ViewData>();
+  const columns = view.fields.map((field) =>
+    columnHelper.accessor(field.id, columnForField(field)),
   );
 
-  return <DataTable className="grow" columns={columns} data={data} />;
+  return <DataTable className="grow" columns={columns} data={viewData} />;
 }
