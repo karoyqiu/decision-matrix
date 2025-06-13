@@ -64,7 +64,11 @@ export const wrapData = (fields: Field[], data: Data[], viewFields: ViewField[])
       const parsed = viewDataValueSchema.safeParse(calculated);
 
       if (parsed.data) {
-        vd[field.id] = parsed.data;
+        if (field.type === 'money' && typeof parsed.data === 'number') {
+          vd[field.id] = Math.round(parsed.data * 100) / 100;
+        } else {
+          vd[field.id] = parsed.data;
+        }
       }
     }
 
